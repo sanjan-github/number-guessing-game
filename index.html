@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Number Guessing Game 🎲</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f4f8;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+    }
+    h1 {
+      color: #1e3a8a;
+      margin-bottom: 8px;
+    }
+    .made-by {
+      font-size: 0.9em;
+      color: #4b5563;
+      margin-bottom: 24px;
+    }
+    .container {
+      max-width: 420px;
+      margin: 0 auto;
+      background: white;
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .message {
+      font-size: 1.25em;
+      margin: 20px 0;
+      padding: 16px;
+      border-radius: 8px;
+      min-height: 60px;
+    }
+    .info  { background: #dbeafe; color: #1e40af; }
+    .win   { background: #dcfce7; color: #166534; font-weight: bold; }
+    .lose  { background: #fee2e2; color: #991b1b; font-weight: bold; }
+    .error { background: #fef3c7; color: #92400e; }
+    input[type="number"] {
+      width: 110px;
+      padding: 12px;
+      font-size: 1.4em;
+      text-align: center;
+      border: 2px solid #9ca3af;
+      border-radius: 6px;
+      margin: 12px 0;
+    }
+    button {
+      padding: 12px 28px;
+      font-size: 1.1em;
+      margin: 8px 4px;
+      border: none;
+      border-radius: 6px;
+      color: white;
+      cursor: pointer;
+    }
+    .btn-start  { background: #3b82f6; }
+    .btn-start:hover  { background: #2563eb; }
+    .btn-guess  { background: #10b981; }
+    .btn-guess:hover  { background: #059669; }
+    .btn-new    { background: #f59e0b; }
+    .btn-new:hover    { background: #d97706; }
+    .btn-reset  { background: #6b7280; }
+    .btn-reset:hover  { background: #4b5563; }
+    .stats {
+      font-size: 1.1em;
+      color: #374151;
+      margin: 12px 0;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Guess the Number (1–100) 🎲</h1>
+    <div class="made-by">Made with ❤️ by Sanjan</div>
+
+    <div id="setup" style="display: block;">
+      <div class="message info">
+        Choose difficulty (1 = easiest, 5 = hardest):
+      </div>
+      <input type="number" id="difficulty" min="1" max="5" placeholder="1–5" autofocus>
+      <br>
+      <button class="btn-start" onclick="startGame()">Start Game</button>
+    </div>
+
+    <div id="game" style="display: none;">
+      <div id="message" class="message info">Game starting...</div>
+      <div class="stats">Attempts: <span id="attempts">0</span> / <span id="maxAttempts">—</span></div>
+      
+      <input type="number" id="guessInput" min="1" max="100" placeholder="Your guess" autofocus>
+      <br>
+      <button class="btn-guess" onclick="makeGuess()">Guess!</button>
+      <button class="btn-new" onclick="startNewGame()">New Game</button>
+      <button class="btn-reset" onclick="resetAll()">Reset</button>
+    </div>
+  </div>
+
+  <script>
+    let secretNumber = null;
+    let attempts = 0;
+    let maxAttempts = 0;
+    let difficulty = 0;
+
+    const messageEl = document.getElementById("message");
+    const attemptsEl = document.getElementById("attempts");
+    const maxAttemptsEl = document.getElementById("maxAttempts");
+    const guessInput = document.getElementById("guessInput");
+
+    function startGame() {
+      const diffInput = document.getElementById("difficulty").value.trim();
+      difficulty = parseInt(diffInput);
+
+      if (isNaN(difficulty) || difficulty < 1 || difficulty > 5) {
+        messageEl.textContent = "Please enter a number between 1 and 5.";
+        messageEl.className = "message error";
+        return;
+      }
+
+      secretNumber = Math.floor(Math.random() * 100) + 1;
+      attempts = 0;
+      maxAttempts = Math.floor(50 / difficulty);
+
+      messageEl.textContent = "Game started! Make your first guess.";
+      messageEl.className = "message info";
+      attemptsEl.textContent = attempts;
+      maxAttemptsEl.textContent = maxAttempts;
+
+      document.getElementById("setup").style.display = "none";
+      document.getElementById("game").style.display = "block";
+      guessInput.focus();
+    }
+
+    function makeGuess() {
+      const guess = parseInt(guessInput.value.trim());
+
+      if (isNaN(guess) || guess < 1 || guess > 100) {
+        messageEl.textContent = "Enter a number between 1 and 100.";
+        messageEl.className = "message error";
+        return;
+      }
+
+      attempts++;
+      attemptsEl.textContent = attempts;
+
+      if (guess === secretNumber) {
+        messageEl.textContent = `Correct! You won in ${attempts} attempt${attempts === 1 ? '' : 's'}.`;
+        messageEl.className = "message win";
+        guessInput.disabled = true;
+      } else if (attempts >= maxAttempts) {
+        messageEl.textContent = `Game over. The number was ${secretNumber}.`;
+        messageEl.className = "message lose";
+        guessInput.disabled = true;
+      } else if (guess < secretNumber) {
+        messageEl.textContent = "Too low. Try again.";
+        messageEl.className = "message info";
+      } else {
+        messageEl.textContent = "Too high. Try again.";
+        messageEl.className = "message info";
+      }
+
+      guessInput.value = "";
+      guessInput.focus();
+    }
+
+    function startNewGame() {
+      secretNumber = Math.floor(Math.random() * 100) + 1;
+      attempts = 0;
+      attemptsEl.textContent = attempts;
+      messageEl.textContent = "New game! Guess again.";
+      messageEl.className = "message info";
+      guessInput.disabled = false;
+      guessInput.value = "";
+      guessInput.focus();
+    }
+
+    function resetAll() {
+      document.getElementById("setup").style.display = "block";
+      document.getElementById("game").style.display = "none";
+      document.getElementById("difficulty").value = "";
+      messageEl.textContent = "";
+      attemptsEl.textContent = "0";
+      maxAttemptsEl.textContent = "—";
+      guessInput.disabled = false;
+    }
+  </script>
+
+</body>
+</html>
