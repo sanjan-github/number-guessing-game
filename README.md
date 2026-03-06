@@ -15,3 +15,5 @@ cd number_guess.py
 python number_guess.py
 # or
 python3 number_guess.py
+## link for the game
+https://sanjan-github.github.io/number-guessing-game/
